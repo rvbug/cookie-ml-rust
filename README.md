@@ -25,6 +25,13 @@ Using a standard structure helps you focus on getting started immediately on any
 I tend to start using jupyter notebook to get an understanding of the data, the story it tries to tell, capturing all the details including references, links, tips and tricks, latest researech. These are important information to store during the initial days of your research on the project.
 
 
+# Rust Installation
+
+
+# Dependencies
+- clap with Derive Feature
+- serde
+- serde_yaml
 
 
 # Project Structure
