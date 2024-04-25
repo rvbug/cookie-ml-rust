@@ -47,15 +47,17 @@ Extemely simple to use command line script.
 
 
 ```rust
-$> cookie-ml-rust --h
+$> cargo run -- --help
+Builds a default ML structure
 
-// Usage: cookie-ml-rust [OPTIONS]
+Usage: cookie-ml [OPTIONS]
 
-// Options:
-//   -n, --name <NAME>  name of the ML project - default is ml-cookie-project [default: ml-cookie-project]
-//   -p, --path <PATH>  path of the ML project [default: $HOME directory]
-//   -v, --venv <VENV>  creates a virtual env if this flag is provided
-
+Options:
+  -n, --name <NAME>  name of the ML project - default is ml-cookie-project [default: ml-cookie-project]
+  -p, --path <PATH>  path of the ML project [default: $HOME]
+  -v, --venv <VENV>  venv flag helps create a defailt virtual env named "venv"
+  -h, --help         Print help
+  -V, --version      Print version
 ```
 
 ## Arguments 
