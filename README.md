@@ -35,20 +35,19 @@ The project structure is quite simple actually
 
 # Usage
 
-It contains a simple python script and a configurable folder structure in YAML format.
+It contains a rust script and a configurable folder structure in YAML format.
 Extemely simple to use command line script.
 
 
 ```rust
-main.rs --h
+$> cookie-ml-rust --h
 
-// Usage: cookie-ml [OPTIONS]
+// Usage: cookie-ml-rust [OPTIONS]
 
 // Options:
 //   -n, --name <NAME>  name of the ML project - default is ml-cookie-project [default: ml-cookie-project]
-//   -p, --path <PATH>  path of the ML project [default: $HOME]
-//   -v, --venv <VENV>  virtual env
-//   -h, --help         Print help
+//   -p, --path <PATH>  path of the ML project [default: $HOME directory]
+//   -v, --venv <VENV>  creates a virtual env if this flag is provided
 
 ```
 
@@ -64,6 +63,7 @@ main.rs --h
 
 
 # Reference 
+- [Rust](https://www.rust-lang.org/)
 - [YAML](https://yaml.org/)  
 - [Data Version Control](https://dvc.org/)    
 - [Dags Hub](https://dagshub.com/)  
