@@ -23,29 +23,13 @@ struct Arguments {
     #[arg(long)]
     venv: Option<String>,
 
-
-    // #[arg(long)]
-    // author: Option<String>,
-    //
-    //
-    // #[arg[long]]
-    // about: Option<String>,
-    //
 }
 
 
 
 fn main() {
-    // println!("Hello, {:?} {:?}!", args.name, args.path);
     let args = Arguments::parse();
     println!("\n");
-
-    // let matches = Command::new("ML cookie cutter structure")
-    //     .version("1.0")
-    //     .author("rvbug")
-    //     .about("Builds a default ML structure").get_matches();
-
-
 
     match args.name {
         Some(name) => {
@@ -66,7 +50,7 @@ fn main() {
     }
     match args.venv {
         Some(venv) => {
-            println!("venv provided is {}", venv);
+            println!("venv : {}", venv);
         }
         None => { 
             println!("virtual env will not be created, create it manually");
