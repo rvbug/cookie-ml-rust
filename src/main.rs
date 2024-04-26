@@ -1,5 +1,9 @@
 // use clap::{Parser, Command, ArgMatches};
- use clap::{Parser};
+use clap::{Parser};
+use yaml_rust2::YamlLoader;
+use std::fs::File;
+use std::io::Read;
+use std::io::prelude::*;
 
 #[derive(Parser)]
 
@@ -7,6 +11,8 @@
 #[command(version="1.0")]
 #[command(about="Builds a default ML structure", long_about = None)]
 #[command(author="rvbug")]
+
+
 
 #[derive(Debug)]
 struct Arguments {
@@ -26,8 +32,20 @@ struct Arguments {
 }
 
 
+// fn load_yaml(filename : &str) {//-> Result<(), String> {
+//
+//     let file = match File::open(filename) {
+//         Ok(file) => println!("{:?}", file),
+//         Err(err) => println!("{:?}", err), 
+//         // Err(err) => return Err(err.to_string()),
+//     };
+// }
 
-fn main() {
+const PATH: &str = "./src/";
+const FILENAME: &str = "config.yaml"; 
+
+
+fn main() -> std::io::Result<()> {
     let args = Arguments::parse();
     println!("\n");
 
@@ -57,13 +75,22 @@ fn main() {
         }
     }
 
-    // match args.author {
-    //     Some(author) => {
-    //         println!("Author : {}", author);
-    //     }
-    //     None => { 
-    //     }
-    // }
+    println!("starting to load the yaml file");
 
+
+    let mut f = File::open(format!("{}{}", PATH, FILENAME))?;
+    let mut data = String::new(); 
+    match f.read_to_string(&mut data) {
+        Ok(_) => (),
+        Err(err) => println!("{:?}", err),
+    }
+    println!("{:?}", data);
+
+    Ok(())
 
 }
+
+
+
+
+
