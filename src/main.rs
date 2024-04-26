@@ -30,11 +30,11 @@ struct Arguments {
 
 }
 
+const FILENAME: &str = "config.yaml"; 
 
 
-
-fn load_yaml(path: &str, filename: &str) -> Result<String, std::io::Error> {
-    let mut f = File::open(format!("{}{}", PATH, FILENAME))?;
+fn load_yaml(filename: &str) -> Result<String, std::io::Error> {
+    let mut f = File::open(format!("{}", FILENAME))?;
     let mut data = String::new();
     
     match f.read_to_string(&mut data) {
@@ -57,9 +57,6 @@ fn load_yaml(path: &str, filename: &str) -> Result<String, std::io::Error> {
 //         // Err(err) => return Err(err.to_string()),
 //     };
 // }
-
-const PATH: &str = "./src/";
-const FILENAME: &str = "config.yaml"; 
 
 
  fn main() -> std::io::Result<()> {
@@ -95,15 +92,15 @@ const FILENAME: &str = "config.yaml";
     println!("calling load_yaml() function to load the yaml file");
 
     // return the contents of the YAML 
-    let contents = load_yaml(&PATH, &FILENAME);
+    let contents = load_yaml(&FILENAME);
 
-    // let mut f = File::open(format!("{}{}", PATH, FILENAME))?;
-    // let mut data = String::new(); 
-    // match f.read_to_string(&mut data) {
-    //     Ok(_) => (),
-    //     Err(err) => println!("{:?}", err),
-    // }
-    // println!("{:?}", data);
+    let mut f = File::open(format!("{}", FILENAME))?;
+    let mut data = String::new(); 
+    match f.read_to_string(&mut data) {
+        Ok(_) => (),
+        Err(err) => println!("{:?}", err),
+    }
+    println!("{:?}", data);
 
     Ok(())
     
