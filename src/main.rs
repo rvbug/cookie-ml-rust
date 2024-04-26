@@ -3,7 +3,6 @@ use clap::{Parser};
 use yaml_rust2::YamlLoader;
 use std::fs::File;
 use std::io::Read;
-use std::io::prelude::*;
 
 #[derive(Parser)]
 
@@ -32,6 +31,24 @@ struct Arguments {
 }
 
 
+
+
+fn load_yaml(path: &str, filename: &str) -> Result<String, std::io::Error> {
+    let mut f = File::open(format!("{}{}", PATH, FILENAME))?;
+    let mut data = String::new();
+    
+    match f.read_to_string(&mut data) {
+        Ok(_) => (),
+        Err(err) => println!("{:?}", err),
+    }
+
+    // display the content of the file!()
+    println!("{:?}", data);
+
+    Ok(data)
+
+}
+
 // fn load_yaml(filename : &str) {//-> Result<(), String> {
 //
 //     let file = match File::open(filename) {
@@ -45,7 +62,7 @@ const PATH: &str = "./src/";
 const FILENAME: &str = "config.yaml"; 
 
 
-fn main() -> std::io::Result<()> {
+ fn main() -> std::io::Result<()> {
     let args = Arguments::parse();
     println!("\n");
 
@@ -54,7 +71,7 @@ fn main() -> std::io::Result<()> {
             println!("Project Name : {:?}", name);
         }
         None => {
-            println!("No value providedi for project name");
+            println!("No value provided for project name");
         }
     }
 
@@ -75,18 +92,21 @@ fn main() -> std::io::Result<()> {
         }
     }
 
-    println!("starting to load the yaml file");
+    println!("calling load_yaml() function to load the yaml file");
 
+    // return the contents of the YAML 
+    let contents = load_yaml(&PATH, &FILENAME);
 
-    let mut f = File::open(format!("{}{}", PATH, FILENAME))?;
-    let mut data = String::new(); 
-    match f.read_to_string(&mut data) {
-        Ok(_) => (),
-        Err(err) => println!("{:?}", err),
-    }
-    println!("{:?}", data);
+    // let mut f = File::open(format!("{}{}", PATH, FILENAME))?;
+    // let mut data = String::new(); 
+    // match f.read_to_string(&mut data) {
+    //     Ok(_) => (),
+    //     Err(err) => println!("{:?}", err),
+    // }
+    // println!("{:?}", data);
 
     Ok(())
+    
 
 }
 
