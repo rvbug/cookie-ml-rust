@@ -4,6 +4,8 @@ use yaml_rust2::YamlLoader;
 use std::fs::File;
 use std::io::Read;
 
+const FILENAME: &str = "config.yaml"; 
+
 #[derive(Parser)]
 
 #[command(name="ML cookie cutter structure")]
@@ -12,11 +14,9 @@ use std::io::Read;
 #[command(author="rvbug")]
 
 
-
 #[derive(Debug)]
 struct Arguments {
     /// name of the ML project - default is ml-cookie-project
-    // #[arg(short="--n", long, default_value = "ml-cookie-project")]
     #[arg(long="name", default_value = "ml-cookie-project")]
     name: Option<String>,
 
@@ -27,13 +27,55 @@ struct Arguments {
     /// venv flag helps create a defailt virtual env named "venv" 
     #[arg(long)]
     venv: Option<String>,
-
 }
 
-const FILENAME: &str = "config.yaml"; 
 
+/// define structure of the yaml file
+
+enum Folder {
+    Docker(Vec<String>),
+    Dvc,
+    Src(Vec<String>),
+    Test(Vec<String>),
+    Data(Data),
+    Plot,
+    Logs,
+    Docs,
+    Models,
+    Config(Vec<String>),
+    Notebook(Notebook),
+    Files(Vec<String>),
+}
+
+struct Data {
+    raw: String,
+    processed: String,
+    train: String,
+    test: String,
+    validate: String,
+}
+
+struct Notebook {
+    nb_data: String,
+    nb_report: String,
+    nb_model: String,
+    nb_documentation: String,
+    notebook_files: Vec<String>,
+}
+
+fn create_directory(path: &str) -> std::io::Result<()> {
+
+    std::fs::create_dir_all(path)?;
+    Ok(())
+}
+
+
+
+/// load_yaml loads the yaml file into the program
+/// and returns the contents of the file
 
 fn load_yaml(filename: &str) -> Result<String, std::io::Error> {
+
     let mut f = File::open(format!("{}", FILENAME))?;
     let mut data = String::new();
     
@@ -101,8 +143,13 @@ fn load_yaml(filename: &str) -> Result<String, std::io::Error> {
         Err(err) => println!("{:?}", err),
     }
     println!("{:?}", data);
+    println!("project directory created successfully...");
 
     Ok(())
+
+
+
+
     
 
 }
