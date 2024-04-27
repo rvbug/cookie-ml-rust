@@ -6,29 +6,32 @@
 ---
 
 <p align="center"> 
-
-  <img src="https://img.shields.io/badge/rust-%23000000.svg?style=for-the-badge&logo=rust&logoColor=white"> 
-  <img src="https://img.shields.io/badge/linting-pylint-yellowgreen">
+  <img height=22 src="https://img.shields.io/badge/rust-%23000000.svg?style=for-the-badge&logo=rust&logoColor=white"> <img src="https://img.shields.io/badge/linting-rust-yellowgreen">
 </p>
 
 
 
 # Introduction
 
-All ML projects start with basic understanding of data and experiement with Jupyter notebook (mostly) and then gradually moving to a proper IDE, writing/reusing helper functions, seperating data_pipline code with data processing etc. It is chaotic for beginners but that is the beauty of it.
+All ML projects start with basic understanding of data and experiement with Jupyter notebook (mostly) and then gradually moving to a proper IDE, writing/reusing helper functions, seperating data_pipline code with data processing, preparing for MLOps etc. It is chaotic for beginners but that is the beauty of it.
 
 
 # About this project
 
-Using a standard structure helps you focus on getting started immediately on any machine learning project.   
+Using a standard structure helps you focusing on getting started immediately on any machine learning project.   
 
 I tend to start using jupyter notebook to get an understanding of the data, the story it tries to tell, capturing all the details including references, links, tips and tricks, latest researech. These are important information to store during the initial days of your research on the project.
 
+This repo helps you to setup your project and folder structure via a script.
 
 
 # Python Version: 
 If you want to use the python version, use this repo [Cookie ML Python version](https://github.com/rvbug/cookie-ml), 
 
+# IDE
+My prefered IDE is [Neovim](https://neovim.io/), if you like to configure for Rust developement, take a look at my [Repo](https://github.com/rvbug/neovim)
+
+![image](https://github.com/rvbug/cookie-ml-rust/assets/10928536/97631e0a-66a1-4414-badb-a6cdb94f62a5)
 
 
 # Rust Installation
@@ -37,15 +40,6 @@ To install rust
 ```bash
 $> curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh
 ```
-
-# IDE
-My prefered IDE is Neovim
-
-# Dependencies
-- clap with Derive Feature
-- serde
-- serde_yaml
-
 
 # Project Structure
 
