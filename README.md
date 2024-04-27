@@ -25,6 +25,12 @@ Using a standard structure helps you focus on getting started immediately on any
 I tend to start using jupyter notebook to get an understanding of the data, the story it tries to tell, capturing all the details including references, links, tips and tricks, latest researech. These are important information to store during the initial days of your research on the project.
 
 
+
+# Python Version: 
+If you want to use the python version, use this repo [Cookie ML Python version](https://github.com/rvbug/cookie-ml), 
+
+
+
 # Rust Installation
 
 
@@ -67,9 +73,6 @@ Options:
 | --n | --name | (optional) provide project name, defaults to "ml-cookie-cutter"  |
 | --p | --path | (optional) provide project location, defaults to $HOME directory |
 | --v | --venv | (optional) create virtual env. <br>Activate using `source {venv_path}/bin/activate` |
-
-
-
 
 # Reference 
 - [Rust](https://www.rust-lang.org/)
