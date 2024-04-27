@@ -33,6 +33,13 @@ If you want to use the python version, use this repo [Cookie ML Python version](
 
 # Rust Installation
 
+To install rust
+```bash
+$> curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh
+```
+
+#IDE
+My prefered IDE is Neovim
 
 # Dependencies
 - clap with Derive Feature
