@@ -5,15 +5,18 @@
 
 ---
 
+
 <p align="center"> 
   <img height=22 src="https://img.shields.io/badge/rust-%23000000.svg?style=for-the-badge&logo=rust&logoColor=white"> <img src="https://img.shields.io/badge/linting-rust-yellowgreen">
 </p>
 
 
 
+
 # Introduction
 
 All ML projects start with basic understanding of data and experiement with Jupyter notebook (mostly) and then gradually moving to a proper IDE, writing/reusing helper functions, seperating data_pipline code with data processing, preparing for MLOps etc. It is chaotic for beginners but that is the beauty of it.
+
 
 
 # About this project
