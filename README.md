@@ -16,7 +16,7 @@
 All ML projects start with basic understanding of data and experiement with Jupyter notebook (mostly) and then gradually moving to a proper IDE, writing/reusing helper functions, seperating data_pipline code with data processing, preparing for MLOps etc. It is chaotic for beginners but that is the beauty of it.
 
 
-# About this project
+# About this project (Work in progress)
 
 Using a standard structure helps you focusing on getting started immediately on any machine learning project.   
 
@@ -26,7 +26,7 @@ This repo helps you to setup your project and folder structure via a script.
 
 
 # Python Version: 
-If you want to use the python version, use this repo [Cookie ML Python version](https://github.com/rvbug/cookie-ml), 
+If you want to use completed python version of this project, use this repo [Cookie ML Python version](https://github.com/rvbug/cookie-ml), 
 
 # IDE
 My prefered IDE is [Neovim](https://neovim.io/), if you like to configure for Rust developement, take a look at my [Repo](https://github.com/rvbug/neovim)
