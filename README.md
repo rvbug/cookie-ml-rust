@@ -75,6 +75,18 @@ Options:
 | --p | --path | (optional) provide project location, defaults to $HOME directory |
 | --v | --venv | (optional) create virtual env. <br>Activate using `source {venv_path}/bin/activate` |
 
+
+## Run
+```bash
+cargo run -- --name my-rust-ml-project
+```
+
+## Documentation   
+
+```rust
+cargo doc --no-deps --open
+```  
+
 # Reference 
 - [Rust](https://www.rust-lang.org/)
 - [YAML](https://yaml.org/)  
