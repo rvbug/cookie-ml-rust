@@ -280,20 +280,239 @@ fn main() -> Result<()> {
 #[cfg(test)]
 mod tests {
     use super::*;
+    use std::fs;
     use tempfile::tempdir;
+    use std::collections::HashSet;
+    
+    /// Helper function to recursively collect all paths in a directory
+    fn collect_paths(path: &Path) -> Result<HashSet<PathBuf>> {
+        let mut paths = HashSet::new();
+        if path.is_dir() {
+            for entry in fs::read_dir(path)? {
+                let entry = entry?;
+                let path = entry.path();
+                paths.insert(path.clone());
+                if path.is_dir() {
+                    paths.extend(collect_paths(&path)?);
+                }
+            }
+        }
+        Ok(paths)
+    }
+
+    /// Helper function to verify file contents
+    fn verify_file_content(path: &Path, expected_content: Option<&str>) -> Result<()> {
+        if let Some(content) = expected_content {
+            let actual_content = fs::read_to_string(path)?;
+            assert!(actual_content.contains(content), 
+                "File {} does not contain expected content", path.display());
+        }
+        Ok(())
+    }
 
     #[test]
+    /// Test basic crate structure creation
     fn test_create_crate_structure() -> Result<()> {
         let temp_dir = tempdir()?;
         create_crate_structure(&temp_dir.path(), "test-crate")?;
         
-        // Verify basic structure
-        assert!(temp_dir.path().join("test-crate/src/lib.rs").exists());
-        assert!(temp_dir.path().join("test-crate/Cargo.toml").exists());
-        assert!(temp_dir.path().join("test-crate/tests").exists());
+        // Expected paths
+        let expected_paths = [
+            "test-crate/src/lib.rs",
+            "test-crate/Cargo.toml",
+            "test-crate/tests/integration_test.rs",
+            "test-crate/benches",
+            "test-crate/examples",
+        ];
+
+        for path in expected_paths.iter() {
+            let full_path = temp_dir.path().join(path);
+            assert!(full_path.exists(), "Path {} does not exist", path);
+        }
+
+        // Verify file contents
+        verify_file_content(
+            &temp_dir.path().join("test-crate/src/lib.rs"),
+            Some("#![warn(missing_docs)]")
+        )?;
+
+        verify_file_content(
+            &temp_dir.path().join("test-crate/Cargo.toml"),
+            Some("[package]\nname = \"test-crate\"")
+        )?;
+
+        Ok(())
+    }
+
+    #[test]
+    /// Test workspace Cargo.toml creation
+    fn test_create_workspace_cargo_toml() -> Result<()> {
+        let temp_dir = tempdir()?;
+        create_workspace_cargo_toml(&temp_dir.path())?;
+        
+        let cargo_path = temp_dir.path().join("Cargo.toml");
+        assert!(cargo_path.exists(), "Cargo.toml not created");
+        
+        let content = fs::read_to_string(cargo_path)?;
+        assert!(content.contains("[workspace]"), "Missing workspace configuration");
+        assert!(content.contains("members = ["), "Missing workspace members");
+        assert!(content.contains("ml-core"), "Missing ml-core crate");
+        assert!(content.contains("[workspace.dependencies]"), "Missing workspace dependencies");
         
         Ok(())
     }
 
-    // Add more tests as needed
+    #[test]
+    /// Test YAML structure processing
+    fn test_process_yaml_structure() -> Result<()> {
+        let temp_dir = tempdir()?;
+        let yaml = serde_yaml::from_str(r#"
+            - src:
+                - lib.rs
+                - main.rs
+            - tests:
+                - test_main.rs
+            - data:
+                - raw:
+                - processed:
+        "#)?;
+
+        process_yaml_structure(&temp_dir.path(), &yaml)?;
+
+        // Verify directory structure
+        let paths = collect_paths(&temp_dir.path())?;
+        assert!(paths.contains(&temp_dir.path().join("src")));
+        assert!(paths.contains(&temp_dir.path().join("src/lib.rs")));
+        assert!(paths.contains(&temp_dir.path().join("src/main.rs")));
+        assert!(paths.contains(&temp_dir.path().join("tests")));
+        assert!(paths.contains(&temp_dir.path().join("tests/test_main.rs")));
+        assert!(paths.contains(&temp_dir.path().join("data/raw")));
+        assert!(paths.contains(&temp_dir.path().join("data/processed")));
+
+        Ok(())
+    }
+
+    #[test]
+    /// Test creating initial content for different file types
+    fn test_create_initial_content() {
+        let test_cases = vec![
+            ("lib.rs", true, "#![warn(missing_docs)]"),
+            ("Cargo.toml", true, "[package]"),
+            ("README.md", true, "# Rust ML Project"),
+            ("random.txt", false, ""),
+        ];
+
+        for (filename, should_have_content, expected_content) in test_cases {
+            let path = PathBuf::from(filename);
+            let content = create_initial_content(&path);
+            
+            if should_have_content {
+                assert!(content.is_some(), "Should have content for {}", filename);
+                assert!(content.unwrap().contains(expected_content), 
+                    "Content for {} doesn't contain expected text", filename);
+            } else {
+                assert!(content.is_none(), "Should not have content for {}", filename);
+            }
+        }
+    }
+
+    #[test]
+    /// Test complete project creation with all components
+    fn test_complete_project_creation() -> Result<()> {
+        let temp_dir = tempdir()?;
+        let yaml = serde_yaml::from_str(r#"
+            - crates:
+                ml-core:
+                ml-data:
+                ml-models:
+            - data:
+                - raw:
+                - processed:
+            - config:
+                - model:
+                    - hyperparams.yaml
+                - training:
+                    - config.yaml
+            - docs:
+                - README.md
+        "#)?;
+
+        // Create project structure
+        process_yaml_structure(&temp_dir.path(), &yaml)?;
+        create_workspace_cargo_toml(&temp_dir.path())?;
+
+        // Verify complete structure
+        let paths = collect_paths(&temp_dir.path())?;
+        
+        // Verify crates
+        for crate_name in ["ml-core", "ml-data", "ml-models"] {
+            assert!(paths.contains(&temp_dir.path().join(format!("crates/{}", crate_name))));
+            assert!(paths.contains(&temp_dir.path().join(format!("crates/{}/src", crate_name))));
+            assert!(paths.contains(&temp_dir.path().join(format!("crates/{}/Cargo.toml", crate_name))));
+        }
+
+        // Verify data directories
+        assert!(paths.contains(&temp_dir.path().join("data/raw")));
+        assert!(paths.contains(&temp_dir.path().join("data/processed")));
+
+        // Verify config files
+        assert!(paths.contains(&temp_dir.path().join("config/model/hyperparams.yaml")));
+        assert!(paths.contains(&temp_dir.path().join("config/training/config.yaml")));
+
+        // Verify docs
+        assert!(paths.contains(&temp_dir.path().join("docs/README.md")));
+
+        // Verify workspace Cargo.toml
+        let cargo_content = fs::read_to_string(temp_dir.path().join("Cargo.toml"))?;
+        assert!(cargo_content.contains("[workspace]"));
+        assert!(cargo_content.contains("members"));
+
+        Ok(())
+    }
+
+    #[test]
+    /// Test error handling for invalid paths
+    fn test_error_handling() {
+        let invalid_path = PathBuf::from("/nonexistent/path");
+        let result = create_crate_structure(&invalid_path, "test-crate");
+        assert!(result.is_err(), "Should fail with invalid path");
+
+        let result = process_yaml_structure(&invalid_path, &serde_yaml::Value::Null);
+        assert!(result.is_err(), "Should fail with invalid path");
+    }
+
+    #[test]
+    /// Test handling of special characters in paths
+    fn test_special_characters() -> Result<()> {
+        let temp_dir = tempdir()?;
+        let special_name = "test-with-特殊字符";
+        create_crate_structure(&temp_dir.path(), special_name)?;
+        
+        assert!(temp_dir.path().join(special_name).exists());
+        assert!(temp_dir.path().join(special_name).join("src/lib.rs").exists());
+        
+        Ok(())
+    }
+
+    #[test]
+    /// Test concurrent directory creation
+    fn test_concurrent_creation() -> Result<()> {
+        use rayon::prelude::*;
+        let temp_dir = tempdir()?;
+        
+        let crate_names: Vec<_> = (0..10)
+            .map(|i| format!("test-crate-{}", i))
+            .collect();
+
+        crate_names.par_iter().try_for_each(|name| {
+            create_crate_structure(&temp_dir.path(), name)
+        })?;
+
+        for name in crate_names {
+            assert!(temp_dir.path().join(&name).exists());
+            assert!(temp_dir.path().join(&name).join("src/lib.rs").exists());
+        }
+
+        Ok(())
+    }
 }
