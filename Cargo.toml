@@ -9,3 +9,5 @@ edition = "2024"
 clap = { version = "4.4", features = ["derive"] }
 serde_yaml = "0.9"
 anyhow = "1.0"
+tempfile = "3.8"
+rayon = "1.8"  # For concurrent testing
