@@ -87,6 +87,21 @@ cargo run -- --name my-rust-ml-project
 cargo doc --no-deps --open
 ```  
 
+## Test
+
+#### Run all tests
+`cargo test`
+
+#### Run with output
+`cargo test -- --nocapture`
+
+#### Run a specific test
+`cargo test test_complete_project_creation`
+
+#### Run tests with coverage (requires cargo-tarpaulin)
+`cargo tarpaulin`  
+
+
 # Reference 
 - [Rust](https://www.rust-lang.org/)
 - [YAML](https://yaml.org/)  
