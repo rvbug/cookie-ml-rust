@@ -1,69 +1,129 @@
+# Rust ML Project Structure Configuration
 
-  # support for data version control
-  - .dvc:
-
-  # if you plan to use docker container
-  - docker:
+# Version control and development tools
+- .dvc  # Data version control
+- docker:
     - Dockerfile
+    - .dockerignore
+    - docker-compose.yml
 
-  # basic ML development files
-  - src:
-    - __init__.py
-    - data_pipeline.py
-    - data_processing.py
-    - feature_engineering.py
-    - model_training.py
-    - evaluation.py
-    - utils.py
+# Main workspace crates
+- crates:
+    - ml-core:  # Core functionality and shared types
+        - src:
+            - lib.rs
+            - error.rs
+            - types.rs
+            - traits.rs
+        - tests:
+            - test_utils.rs
+        - benches:
+            - bench_main.rs
+    - ml-data:  # Data processing and pipelines
+        - src:
+            - lib.rs
+            - pipeline.rs
+            - preprocessing.rs
+            - features.rs
+            - validation.rs
+        - tests:
+            - data_tests.rs
+    - ml-models:  # Model implementations
+        - src:
+            - lib.rs
+            - linear.rs
+            - tree.rs
+            - ensemble.rs
+            - metrics.rs
+        - tests:
+            - model_tests.rs
+    - ml-train:  # Training and evaluation
+        - src:
+            - lib.rs
+            - trainer.rs
+            - evaluation.rs
+            - hyperparams.rs
+        - tests:
+            - training_tests.rs
 
-  # unit testing
-  - tests:
+# Data directories
+- data:
+    - raw:  # Original unmodified data
+    - processed:  # Cleaned and processed data
+    - train:  # Training datasets
+    - test:   # Test datasets
+    - validate:  # Validation datasets
+    - schema:  # Data schema definitions
+        - features.json
+        - metadata.json
 
-  # you can omit some files but typically 
-  # these are the ones used
-  - data:
-    - raw:
-    - processed:
-    - train:
-    - test:
-    - validate:
+# Output and artifacts
+- artifacts:
+    - models:  # Saved model files
+        - checkpoints:
+        - final:
+    - plots:  # Generated visualizations
+        - training:
+        - evaluation:
+    - metrics:  # Performance metrics
+        - training_metrics.json
+        - validation_metrics.json
 
- # to save any plots as .png
-  - plot:
+# Documentation and research
+- docs:
+    - api:  # API documentation
+    - design:  # Design documents
+    - research:  # Research notes and papers
+    - examples:  # Usage examples
+    - benchmarks:  # Benchmark results
 
- # all logs files
- # write a seperate script for rotating
-  - logs:
+# Configuration
+- config:
+    - model:
+        - hyperparams.yaml
+        - architecture.yaml
+    - data:
+        - preprocessing.yaml
+        - validation.yaml
+    - training:
+        - train_config.yaml
+    - logging:
+        - log4rs.yaml
 
-# storing all your research and documentation
-  - docs:
+# Development tools and scripts
+- scripts:
+    - setup.sh
+    - benchmark.sh
+    - profile.sh
+    - data_validation.sh
 
-# model folder considering all models being tested
-  - models:
+# Logs
+- logs:
+    - training:
+    - evaluation:
+    - benchmarks:
 
-# model config files
-  - conf:
-    - hyperparams.yaml
-    - conf.yaml
-    - dagshub.yaml
-
-# usually we start with .ipynb
-# all your exploration can be stored 
-# under the same project right at the start 
-# of your ML project
-  - notebook:
-    - nb_data:
-    - nb_report:
-    - nb_model:
-    - nb_documentation:
-    - notebook_files:
-      - eda_ml_experiment.ipynb
-      - project_name.ipynb
-
-  - files:
-    - setup.py
+# Project files
+- files:
     - README.md
-    - Makefile
-    - requirements.txt
+    - Cargo.toml
+    - rust-toolchain.toml
     - .gitignore
+    - .rustfmt.toml
+    - .clippy.toml
     - LICENSE
+
+# Benchmarking and profiling
+- benches:
+    - criterion:
+        - training_bench.rs
+        - inference_bench.rs
+    - flamegraph:
+        - profile_configs:
+
+# Examples
+- examples:
+    - basic_training.rs
+    - data_pipeline.rs
+    - model_inference.rs
+    - custom_model.rs
