@@ -1,160 +1,116 @@
-// use clap::{Parser, Command, ArgMatches};
-use clap::{Parser};
-use yaml_rust2::YamlLoader;
-use std::fs::File;
-use std::io::Read;
+use std::env;
+use std::fs::{self, File};
+use std::path::{Path, PathBuf};
+use clap::Parser;
+use serde_yaml::Value;
+use anyhow::{Context, Result};
 
-const FILENAME: &str = "config.yaml"; 
-
-#[derive(Parser)]
-
-#[command(name="ML cookie cutter structure")]
-#[command(version="1.0")]
-#[command(about="Builds a default ML structure", long_about = None)]
-#[command(author="rvbug")]
-
-
-#[derive(Debug)]
-struct Arguments {
-    /// name of the ML project - default is ml-cookie-project
-    #[arg(long="name", default_value = "ml-cookie-project")]
+#[derive(Parser, Debug)]
+#[command(
+    name = "ML Cookie Cutter",
+    about = "Creates ML project cookie cutter structure",
+    after_help = "Enjoy and happy coding"
+)]
+struct Args {
+    #[arg(long = "n", long = "name", help = "Name of the directory to be created, default = ml-cookie-project")]
     name: Option<String>,
 
-    /// path of the ML project
-    #[arg(long, default_value = "$HOME")]
+    #[arg(long = "p", long = "path", help = "Provide the path where, default is $HOME dir")]
     path: Option<String>,
 
-    /// venv flag helps create a defailt virtual env named "venv" 
-    #[arg(long)]
-    venv: Option<String>,
+    #[arg(long = "c", long = "config", help = "Specify your own config file")]
+    config: Option<String>,
+
+    #[arg(long = "v", long = "venv", help = "Create a virtual env [ignore if you are already on a virtual env]")]
+    venv: bool,
 }
 
-
-/// define structure of the yaml file
-
-enum Folder {
-    Docker(Vec<String>),
-    Dvc,
-    Src(Vec<String>),
-    Test(Vec<String>),
-    Data(Data),
-    Plot,
-    Logs,
-    Docs,
-    Models,
-    Config(Vec<String>),
-    Notebook(Notebook),
-    Files(Vec<String>),
+fn load_config(config_file: &Path) -> Result<Value> {
+    let f = File::open(config_file)
+        .with_context(|| format!("Failed to open config file: {}", config_file.display()))?;
+    serde_yaml::from_reader(f)
+        .with_context(|| "Failed to parse YAML config")
 }
 
-struct Data {
-    raw: String,
-    processed: String,
-    train: String,
-    test: String,
-    validate: String,
-}
-
-struct Notebook {
-    nb_data: String,
-    nb_report: String,
-    nb_model: String,
-    nb_documentation: String,
-    notebook_files: Vec<String>,
-}
-
-fn create_directory(path: &str) -> std::io::Result<()> {
-
-    std::fs::create_dir_all(path)?;
+fn create_virtual_env(project_path: &Path) -> Result<()> {
+    let venv_path = project_path.join("venv");
+    println!("virtual env path is {}", venv_path.display());
+    
+    if !venv_path.exists() {
+        // In Rust, we'll use the system's python to create the venv
+        std::process::Command::new("python3")
+            .args(["-m", "venv", venv_path.to_str().unwrap()])
+            .output()
+            .with_context(|| "Failed to create virtual environment")?;
+        
+        println!("virtual env created at {}", venv_path.display());
+        println!("you can activate using the following command");
+        println!("source {}/bin/activate", venv_path.display());
+    }
     Ok(())
 }
 
-
-
-/// load_yaml loads the yaml file into the program
-/// and returns the contents of the file
-
-fn load_yaml(filename: &str) -> Result<String, std::io::Error> {
-
-    let mut f = File::open(format!("{}", FILENAME))?;
-    let mut data = String::new();
-    
-    match f.read_to_string(&mut data) {
-        Ok(_) => (),
-        Err(err) => println!("{:?}", err),
+fn create_directories(project_path: &Path, config: &Value) -> Result<()> {
+    match config {
+        Value::String(s) => {
+            let item_path = project_path.join(s);
+            File::create(&item_path)
+                .with_context(|| format!("Failed to create file: {}", item_path.display()))?;
+        }
+        Value::Sequence(seq) => {
+            for item in seq {
+                create_directories(project_path, item)?;
+            }
+        }
+        Value::Mapping(map) => {
+            for (key, value) in map {
+                if let Value::String(key) = key {
+                    if key == "files" {
+                        if let Value::Sequence(files) = value {
+                            for file in files {
+                                if let Value::String(filename) = file {
+                                    let file_path = project_path.join(filename);
+                                    File::create(&file_path)
+                                        .with_context(|| format!("Failed to create file: {}", file_path.display()))?;
+                                }
+                            }
+                        }
+                    } else {
+                        let sub_path = project_path.join(key);
+                        fs::create_dir_all(&sub_path)
+                            .with_context(|| format!("Failed to create directory: {}", sub_path.display()))?;
+                        create_directories(&sub_path, value)?;
+                    }
+                }
+            }
+        }
+        _ => {}
     }
-
-    // display the content of the file!()
-    println!("{:?}", data);
-
-    Ok(data)
-
+    Ok(())
 }
 
-// fn load_yaml(filename : &str) {//-> Result<(), String> {
-//
-//     let file = match File::open(filename) {
-//         Ok(file) => println!("{:?}", file),
-//         Err(err) => println!("{:?}", err), 
-//         // Err(err) => return Err(err.to_string()),
-//     };
-// }
+fn main() -> Result<()> {
+    let args = Args::parse();
 
+    let config_path = args.config
+        .map(PathBuf::from)
+        .unwrap_or_else(|| PathBuf::from("config.yaml"));
+    
+    let config = load_config(&config_path)?;
 
- fn main() -> std::io::Result<()> {
-    let args = Arguments::parse();
-    println!("\n");
+    let project_name = args.name.unwrap_or_else(|| String::from("ml-cookie-cutter"));
+    let project_base = args.path
+        .map(PathBuf::from)
+        .unwrap_or_else(|| env::var("HOME").map(PathBuf::from).unwrap_or_else(|_| PathBuf::from(".")));
 
-    match args.name {
-        Some(name) => {
-            println!("Project Name : {:?}", name);
-        }
-        None => {
-            println!("No value provided for project name");
-        }
+    let project_path = project_base.join(project_name);
+
+    create_directories(&project_path, &config)?;
+    println!("ML directory structure created at: {}", project_path.display());
+
+    if args.venv {
+        create_virtual_env(&project_path)?;
     }
-
-    match args.path {
-        Some(path) => {
-            println!("Path : {}", path);
-        }
-        None => { 
-            println!("No value provided for path");
-        }
-    }
-    match args.venv {
-        Some(venv) => {
-            println!("venv : {}", venv);
-        }
-        None => { 
-            println!("virtual env will not be created, create it manually");
-        }
-    }
-
-    println!("calling load_yaml() function to load the yaml file");
-
-    // return the contents of the YAML 
-    let contents = load_yaml(&FILENAME);
-
-    let mut f = File::open(format!("{}", FILENAME))?;
-    let mut data = String::new(); 
-    match f.read_to_string(&mut data) {
-        Ok(_) => (),
-        Err(err) => println!("{:?}", err),
-    }
-    println!("{:?}", data);
-    println!("project directory created successfully...");
 
     Ok(())
-
-
-
-
-    
-
 }
-
-
-
-
-
